@@ -23,7 +23,7 @@ class SaveProjectRequest extends FormRequest
     {
         return [
             'title'=> 'required',
-            'url'=>'required',
+            'url'=>['required','unique:projects'], //evita ingresar datos repetidos en la columan URL
             'description'=> ['required','min:5']
         ];
     }

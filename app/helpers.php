@@ -1,4 +1,4 @@
 <?php
 function setActive($value) {
-    return request()->routeIs($value)? 'actived':'';
+    return request()->routeIs($value)? 'active':'';
 }
