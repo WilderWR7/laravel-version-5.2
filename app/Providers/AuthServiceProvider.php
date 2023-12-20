@@ -3,7 +3,11 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+
+use App\Models\User;
+use App\Policies\ProjectPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -21,6 +25,10 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // \Log::info($user);
+        // Gate::define('create-projects',[ProjectPolicy::class,'create']);//return TRUE or FALSE;
+        Gate::define('view-deleted-projects', function ($user) {
+            return $user->role == 'admin';
+        });
     }
 }

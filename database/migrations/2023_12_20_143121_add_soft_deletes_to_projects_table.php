@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('title');
-            $table->string('description');
-            $table->string('url')->unique();
-            $table->timestamps();
+        Schema::table('projects', function (Blueprint $table) {
+            $table->softDeletes(); //agrega una columna y guarda la fecha y hora en la que intentaron eliminarla (no se elimina)
         });
-
     }
 
     /**
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::table('projects', function (Blueprint $table) {
+            $table->dropColumn('deleted_at');
+        });
     }
 };

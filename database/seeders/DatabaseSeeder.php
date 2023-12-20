@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([ProjectSeeder::class]); //terminal: php artisan db:seed
+
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

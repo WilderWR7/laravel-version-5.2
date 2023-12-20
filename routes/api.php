@@ -13,7 +13,19 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+use App\Http\Controllers\ProyectController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Route::post('/portafolio/{project}/restore', [ProyectController::class,'restore'])->name('projects.restore');
+
+Route::middleware('auth:sanctum')->group( function() {
+    Route::get('/token',function () {
+        return "Hola mundo";
+    });
+});
+
+
+
