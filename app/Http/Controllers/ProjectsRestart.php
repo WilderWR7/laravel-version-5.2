@@ -3,13 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use Illuminate\Support\Collection;
+
 use Illuminate\Database\Schema\IndexDefinition;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProjectsRestart extends Controller
 {
     public function index(Request $request) {
-        return 1;
+        // $project =  DB::table('projects')->where('title','Laravel Web')->first();
+        // $project =  DB::table('projects')->value('title');
+        $project =  DB::table('projects')->find(2); //search id:2
+
+        DB::table('users')->where('role', 'user')
+        ->chunkById(5,function (Collection $users ){
+            foreach ($users as $user) {
+                DB::table('users')->where('id',$user->id)
+                ->update(['role'=>'admin']);
+            }
+            return false;
+        });
+
+        // $project =  DB::table('projects')->pluck('title','Laravel Web'); //get column title:Laravel Web
+        return response()->json(['title'=> $project]);
+
+
     }
 
     public function edit($projectUrl) {

@@ -13,7 +13,8 @@
         @endisset
         {{-- @can('create-projects') Comprueba los Gate  --}}
         {{-- @can('create-projects')  Call GETE --}}
-        @can('create',$newProject)
+        {{-- @can('create',$newProject) --}}
+        @can('create-projects')
             <a class="btn btn-primary" href="{{ route('project.create') }}">Crear Proyecto</a>
         @endcan()
     </div>

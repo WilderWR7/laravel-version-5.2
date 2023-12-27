@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\ProjectSaved;
 use App\Http\Requests\SaveProjectRequest;
 use App\Models\Category;
+use App\Repositories\ProjectRepository;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -17,32 +18,39 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 // use Illuminate\Support\Facades\DB;
 
-class ProyectController extends Controller
+class ProjectController extends Controller
 {
     /**
      * Handle the incoming request.
      */
-
-    public function __construct()
+    protected $projectRepository;
+    protected $view;
+    public function __construct(ProjectRepository $projectRepository, \Illuminate\Contracts\View\Factory $view)
     {
-        $this->middleware('auth')->except(['index','show']);  //agrega el middleware menos a: index y show
-        // $this->middleware('example')->only(['restore']); //agrega el middelware a: restore
+        $this->projectRepository = $projectRepository;
+        $this->view = $view;
+        // $this->middleware('auth')->except(['index','show']);  //agrega el middleware menos a: index y show
+        // $this->middleware('example')->only(['restore']); //agrega el middleware a: restore
     }
 
-    public function index(Request $request)
+    public function index()
     {
 
         // $portafolio = DB::table('proyects')->get();
         // $portafolio = Proyect::get();
         // $portafolio = Proyect::latest('created_at')->get();
-        $proyects = Project::with('category')->latest()->paginate(3);
+        // $proyects = Project::with('category')->latest()->paginate(3);
         // return Project::withTrashed()->with('category')->latest()->paginate();  //incluye los datos que intentaron ser eliminados
         // return $proyects;
         // return view('portafolio.index', compact('proyects'));
-        return view('portafolio.index', [
+
+        $proyects = $this->projectRepository->getPaginatedProjects();
+        $onlyTrashed = $this->projectRepository->onlyTrashed();
+        // return $proyects;
+        return $this->view->make('portafolio.index', [
             'proyects'=> $proyects,
-            'newProject'=> new Project,
-            'deletedProjects'=> Project::onlyTrashed()->get()
+            // 'newProject'=> new Project(),
+            'deletedProjects'=> $onlyTrashed
         ]);
     }
     public function create()
@@ -50,10 +58,11 @@ class ProyectController extends Controller
         // Gate::allows('create-projects');  //boolean
         // abort_unless($this->allows('create-projects'),403);
         $this->authorize('create', $project = new Project);
-        return view('portafolio.create', [
-            'project' => $project,
-            'categories'=> Category::pluck('nombre','id')
-        ]);
+        return $this->view->make('portafolio.create');
+        // , [
+            // 'project' => $project,
+            // 'categories'=> Category::pluck('nombre','id')
+        // ]);
     }
     // public function show(string $id) {
     //     return view('portafolio.show',['proyect'=> Proyect::findOrFail($id)]);
@@ -88,7 +97,6 @@ class ProyectController extends Controller
     {
         // return Category::get(); //getAll();
         // return Category::pluck('nombre','id'); //obtiene solo nombres mediante el key: ID
-
         $this->authorize('update',$project);
         return view('portafolio.edit', [
             'project' => $project,

@@ -25,6 +25,8 @@ class ListProjectsTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('portafolio.index'); //devuelve la vista x?
         $response->assertViewHas('proyects'); //verifica si existe la variable x
+        // $response->assertViewHas('newProject'); //verifica si existe la variable x
+        $response->assertViewHas('deletedProjects'); //verifica si existe la variable x
         $response->assertSee($project->title);
     }
     public function test_can_see_all_projects() {
