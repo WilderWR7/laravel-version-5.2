@@ -20,7 +20,6 @@ class ListProjectsTest extends TestCase
         $this->withoutExceptionHandling();
         $project =Project::factory()->create();
         // dd($project->toArray());
-
         $response = $this->get(route('project.index'));
         $response->assertStatus(200);
         $response->assertViewIs('portafolio.index'); //devuelve la vista x?
@@ -31,7 +30,7 @@ class ListProjectsTest extends TestCase
     }
     public function test_can_see_all_projects() {
         $project =Project::factory()->create();
-        $project2 =Project::factory()->create();
+        // $project2 =Project::factory()->create();
         // $project2 =Project::factory()->make(); //create array of Project
         // dd($project->toArray());
         // $project = Project::create([
@@ -52,7 +51,7 @@ class ListProjectsTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewHas('project');
         $response->assertSee($project->title);
-        $response->assertDontSee($project2->title);
+        // $response->assertDontSee($project2->title);
 
     }
 

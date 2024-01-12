@@ -25,7 +25,6 @@ class OptimizeProjectImage implements ShouldQueue
     {
         throw new \Exception('Error optimizing the image',1);
         $manager = new ImageManager(new Driver());
-        echo($event->project->image);
         $image = $manager->read(storage_path('app/public/'.$event->project->image));
         // $image = ImageManager::imagick()->read(storage_path('app/public/'.$project->image));
         $image->resize(height:100);

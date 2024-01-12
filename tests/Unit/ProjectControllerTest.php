@@ -2,11 +2,16 @@
 
 namespace Tests\Feature\Unit;
 
+use App\Events\ProjectSaved;
 use App\Http\Controllers\ProjectController;
+use App\Http\Requests\SaveProjectRequest;
+use App\Models\Category;
 use App\Models\Project;
-use App\Policies\ProjectPolicy;
+use App\Repositories\CategoryRepository;
 use App\Repositories\ProjectRepository;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\View\Factory;
 // use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\TestCase;
 // use Tests\TestCase;
@@ -27,14 +32,15 @@ class ProjectControllerTest extends TestCase
     {
          // Mock Project model
          // $projects = $this->getProjects();
-        $repository = Mockery::mock(ProjectRepository::class);
-        $repository->shouldReceive('getPaginatedProjects')
+         $projectRepository = Mockery::mock(ProjectRepository::class);
+        $categoryRepository = Mockery::mock(CategoryRepository::class);
+        $projectRepository->shouldReceive('getPaginatedProjects')
             ->withAnyArgs()
             ->once()->andReturn('paginatedProjects');
-        $repository->shouldReceive('onlyTrashed')->once()->andReturn('recycledProjects');
+            $projectRepository->shouldReceive('onlyTrashed')->once()->andReturn('recycledProjects');
             // ->andReturn($projects);
         $view = Mockery::mock('Illuminate\View\Factory');
-        $controller = new ProjectController($repository,$view);
+        $controller = new ProjectController($projectRepository,$categoryRepository,$view);
         $view->shouldReceive('make')
         ->with('portafolio.index',['proyects'=> 'paginatedProjects','deletedProjects'=> 'recycledProjects'])
         ->once();
@@ -56,19 +62,65 @@ class ProjectControllerTest extends TestCase
     }
 
     public function test_create(): void {
-        $repository = Mockery::mock(ProjectRepository::class);
+        Gate::shouldReceive('allows')->with('create-projects')->andReturn(true);
+
+        $projectRepository = Mockery::mock(ProjectRepository::class);
+        $categoryRepository = Mockery::mock(CategoryRepository::class);
 
         $view = Mockery::mock('Illuminate\View\Factory');
-        $controller = new ProjectController($repository,$view);
-        $controller->authorize('create', $repository->getNewProject );
-        // Gate::shouldReceive('authorize')->with('create', Project::class)->andReturn(true);
-        $view->shouldReceive('make')->with('portafolio.create')->once();
+
+        $projectRepository->shouldReceive('getNewProject')
+        ->withAnyArgs()
+        ->once()->andReturn('newProject');
+        $categoryRepository->shouldReceive('pluckIdName')
+        ->withAnyArgs()
+        ->once()->andReturn('pluckIdName');
+
+
+        $controller = new ProjectController($projectRepository,$categoryRepository,$view);
+
+        $view->shouldReceive('make')
+        ->with('portafolio.create',['project'=> 'newProject','categories'=>'pluckIdName'])
+        ->once();
+
         $controller->create();
+
         $this->assertTrue(true);
     }
 
+    public function test_show ():void {
+        $projectRepositoryMock = Mockery::mock(ProjectRepository::class);
+        $categoryRepositoryMock = Mockery::mock(CategoryRepository::class);
+        $viewMock = Mockery::mock('Illuminate\View\Factory');
+        $projectMock = Mockery::mock(Project::class);
+        $viewMock->shouldReceive('make')->with('portafolio.show',['project'=>$projectMock]);
+        $controller = new ProjectController($projectRepositoryMock,$categoryRepositoryMock,$viewMock);
+        $controller->show($projectMock);
+        $this->assertTrue(true);
+    }
 
+    public function test_store ():void {
+        Gate::shouldReceive('allows')->with('create-projects')->andReturn(true);
+        $saveProjectRequestMock = Mockery::mock(SaveProjectRequest::class);
+        $projectRepositoryMock = Mockery::mock(ProjectRepository::class);
+        $categoryRepositoryMock = Mockery::mock(CategoryRepository::class);
+        $viewMock = Mockery::mock(Factory::class);
+        $projectMock = Mockery::mock(Project::class);
+        $uploadFileMock = Mockery::mock(UploadedFile::class);
+        $projectSavedMock = Mockery::mock(ProjectSaved::class);
 
+        $projectRepositoryMock->shouldReceive('createProject')->with($saveProjectRequestMock)->once()->andReturn($projectMock);
+        $uploadFileMock->shouldReceive('store')->with('images','public')->andReturn('storeLoad');
+        $saveProjectRequestMock->shouldReceive('file')->with('image')->once()->andReturn($uploadFileMock);
+
+        $projectMock->shouldReceive('setAttribute')->once()->andReturn('attribute');
+        $projectMock->shouldReceive('save')->once()->andReturn('project');
+
+        $projectSavedMock->shouldReceive('dispatch')->with('project')->once()->andReturn('projectDispatch');
+        $controller = new ProjectController($projectRepositoryMock,$categoryRepositoryMock,$viewMock);
+        $controller->store($saveProjectRequestMock);
+
+    }
     public function getProjects()
     {
         return collect(new Project());

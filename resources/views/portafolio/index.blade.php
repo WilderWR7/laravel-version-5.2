@@ -9,7 +9,9 @@
                 <a class="mt-1" href="{{ route('project.index') }}" >Regresar al portafolio</a>
             </div>
         @else
-            <h1 class="m-0 display-4">Portafolio</h1>
+            @admin {{-- probando --}}
+                <h1 class="m-0 display-4">Portafolio</h1>
+            @endadmin
         @endisset
         {{-- @can('create-projects') Comprueba los Gate  --}}
         {{-- @can('create-projects')  Call GETE --}}

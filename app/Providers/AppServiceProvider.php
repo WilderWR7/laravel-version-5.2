@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,6 +26,13 @@ class AppServiceProvider extends ServiceProvider
             'create'=>__('create'),
             'edit'=>__('edit')
         ]);
+        Blade::if('admin', function () {
+            return true;
+        });
+        Blade::if('production', function () {
+            return !app()->isLocal();
+        });
+
         Paginator::useBootstrap();
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Repositories;
 
+use App\Http\Requests\SaveProjectRequest;
 use App\Models\Project;
 
 class ProjectRepository
@@ -13,5 +14,8 @@ class ProjectRepository
     }
     public function getNewProject() {
         return new Project;
+    }
+    public function createProject( SaveProjectRequest $request ) {
+        return new Project($request->all());
     }
 }
